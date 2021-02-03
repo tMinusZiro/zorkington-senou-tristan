@@ -12,9 +12,10 @@ function ask(questionText) {
 
 //room class
 class Room {
-  constructor(secretItem, newInfo) {
+  constructor(secretItem, newInfo, items = []) {
     this.secretItem = secretItem;
     this.newInfo = newInfo;
+    this.items = items;
   }
 
   hidden() {}
@@ -49,7 +50,6 @@ let signs = {
 };
 
 //player class
-
 class Player {
   constructor(
     defaultStatus = "brave",
@@ -87,11 +87,20 @@ start();
 
 async function start() {
   const welcomeMessage = `182 Main St.
-You are standing on Main Street between Church and South Winooski.
-There is a door here. A keypad sits on the handle.
-On the door is a handwritten sign.`;
+  You are standing on Main Street between Church and South Winooski.
+  There is a door here. A keypad sits on the handle.
+  On the door is a handwritten sign.`;
   let answer = await ask(welcomeMessage);
-  console.log("Now write your code to make this work!");
+  //guard clause for first prompt that will reject all output besides 'read sign'
+  while (answer !== "read sign") {
+    answer = await ask(">_");
+    if (answer === "read sign") {
+      break;
+    }
+    console.log(`Sorry I don't know how to ${answer}.`);
+  }
+  signs.read();
+
   process.exit();
 }
 
