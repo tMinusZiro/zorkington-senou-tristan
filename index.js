@@ -12,8 +12,8 @@ function ask(questionText) {
 
 //room class
 class Room {
-  constructor(newInfo) {
-    this.secretItem = "key";
+  constructor(secretItem, newInfo) {
+    this.secretItem = secretItem;
     this.newInfo = newInfo;
   }
 
