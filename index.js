@@ -12,17 +12,13 @@ function ask(questionText) {
 
 //room class
 class Room {
-  constructor(secretItem, newInfo, items = []) {
-    this.secretItem = secretItem;
-    this.newInfo = newInfo;
+  constructor(secretItem, items = [], props = []) {
+    this.secretItem = secretItem || "key";
     this.items = items;
+    this.props = props;
   }
 
   hidden() {}
-
-  read() {
-    console.log(this.items[signs][welcome]);
-  }
 
   items() {}
 
@@ -35,54 +31,48 @@ class Room {
   }
 }
 
-//experimental nonclass object
-let signs = {
-  prompts: {
-    signs: {
-      welcome:
-        "The sign says 'Welcome to Burlington Code Academy!'\nCome on up to the third floor.\nIf the door is locked, use the code 12345.",
-    },
+let wordBank = {
+  movement: ["forward", "backwards", "left", "right"],
+  action: ["read", "pick up"],
+};
+
+//player object
+let player = {
+  status: {
+    defaultStatus: ["awake"],
+    nextStatus: ["sleep", "brave", "scared"],
   },
 
-  read: () => {
-    return this.signs[prompts][signs][welcome];
+  inventory: [],
+
+  playerStatus: function () {},
+
+  playerInventory: function () {},
+};
+
+//game object
+let gameObjective = {
+  rooms: {
+    roomOne: "locked",
+    roomTwo: "locked",
+    roomThree: "locked",
+    roomFour: "locked",
+    roomFive: "locked",
+  },
+
+  winGame: function () {
+    if (
+      this.roomOne === "unlocked" ||
+      this.roomTwo === "unlocked" ||
+      this.roomThree === "unlocked" ||
+      this.roomFour === "unlocked"
+    ) {
+      console.log(`you won`);
+      process.exit();
+    }
   },
 };
 
-//player class
-class Player {
-  constructor(
-    defaultStatus = "brave",
-    nextStatus = ["brave", "tired", "excited", "scared"]
-  ) {
-    this.status = defaultStatus;
-    this.inventory = inventory;
-  }
-
-  playerStatus() {}
-
-  playerInventory() {}
-}
-
-//game class
-class Game {
-  constructor(objective) {
-    this.objective = {
-      roomOne: "locked",
-      roomTwo: "locked",
-      roomThree: "locked",
-      roomFour: "locked",
-      roomFive: "locked",
-    };
-  }
-
-  gameStatus() {
-    if (this.objective[0] === "locked") {
-      console.log(`Room One has been unlocked.`);
-    } //build out a loop that checks if the rooms have been unlocked and when all of them have and than game over
-    //can also build out other game objectives to check for
-  }
-}
 start();
 
 async function start() {
