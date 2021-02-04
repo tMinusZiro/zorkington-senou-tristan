@@ -10,6 +10,10 @@ function ask(questionText) {
   });
 }
 
+//Global Variables//
+
+let prompt = ">_";
+
 //Room Builder
 class Room {
   constructor(descriptor, secretItem, items = [], props = []) {
@@ -106,9 +110,14 @@ let roomOne = new Room(
 start();
 
 async function start() {
-  console.log(`You wake up on the floor confused.`);
-
-  let answer = await ask(">_");
+  console.log(`Welcome to Room One.`);
+  let roomOne = new Room(
+    "The room is a grey box. In the corner you there's a stick and a ball, immovable object that you can look at, and a door on the opposite side of the room",
+    "key",
+    ["a stick", "a ball"],
+    "cement block with numbers written on it as well as a little slot with a key inside"
+  );
+  let answer = await ask(prompt);
 
   //Room interaction block =>
   while (answer.trim() !== true) {
