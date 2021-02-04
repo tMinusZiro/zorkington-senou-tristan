@@ -21,7 +21,10 @@ class Room {
 
   hidden() {}
 
-  items() {}
+  sendItems() {
+    let poppedItem = this.items.pop();
+    player.inventory.push(poppedItem);
+  }
 
   exit() {
     if (this.secretItem === "key") {
@@ -39,10 +42,10 @@ let wordBank = {
 };
 
 let actionBank = {
-    read: ["read", "look at", "examine"],
-    take: ["take", "pick up", "add to", "put in inventory"],
-    exit: ["open door", "exit room", "leave"]
-}
+  read: ["read", "look at", "examine"],
+  take: ["take", "pick up", "add to", "put in inventory"],
+  exit: ["open door", "exit room", "leave"],
+};
 
 //player object
 let player = {
@@ -68,6 +71,16 @@ let gameObjective = {
     roomFive: "locked",
   },
 
+  inRoom: {
+    roomOne: "true",
+    roomTwo: "false",
+    roomThree: "false",
+    roomFour: "false",
+    roomFive: "false",
+  },
+
+  //need to know what room player is in
+
   winGame: function () {
     if (
       this.roomOne === "unlocked" ||
@@ -81,17 +94,20 @@ let gameObjective = {
   },
 };
 
+//Room Instances
+let roomOne = new Room(
+  "You are in a small room. In the corner there's a bat and a ball, and a door on the opposite side of the room.\nYou see a small cement block with something written on it\nEarly morning sunlight is streaming through the window.",
+  "key",
+  ["bat"],
+  "cement block"
+);
+
 //Begin Game
 start();
 
 async function start() {
-  console.log(`Welcome to Room One.`);
-  let roomOne = new Room(
-    "The room is a grey box. In the corner you there's a stick and a ball, immovable object that you can look at, and a door on the opposite side of the room",
-    "key",
-    ["a stick", "a ball"],
-    "cement block with numbers written on it"
-  );
+  console.log(`You wake up on the floor confused.`);
+
   let answer = await ask(">_");
 
   //Room interaction block =>
@@ -100,39 +116,42 @@ async function start() {
     //Is it possible to be like => if answer include wordBank.action, then actionFunction for specific room?
     if (answer.trim() === "look around") {
       console.log(roomOne.descriptor);
-    } else
+    }
     //Acquire passcode
-    if(answer.trim().includes('read')) {
-        console.log('The cement block has a passcode on it - 1234')
-    } else
-///Add specific item from specific room to player inventory
-    if (answer.trim().includes('take') && answer.trim().includes(roomOne.items)){
-        player.inventory.push(item)
-    }else
+    else if (answer.trim().includes("read")) {
+      console.log(`The ${roomOne.props} has a passcode on it - 1234`);
+    }
+    ///Add specific item from specific room to player inventory
+    else if (answer === "take bat") {
+      console.log(`Oh nice a bat`);
+      roomOne.sendItems();
+      console.log({ roomOne });
+      console.log({ player });
+    }
     //Exit Room
-    if (answer.trim() == "open door") {
-        let unlockDoor = await ask("The door has a passcode. If you know it, enter it now.")
-        if (unlockDoor === "1234") {
-            console.log("You entered the right passcode. Onto the next room");
-            roomOne.exit();
-        } else {
-            console.log("Wrong passcode")
-        }
+    else if (answer.trim() == "open door") {
+      let unlockDoor = await ask(
+        "The door has a passcode. If you know it, enter it now.\n>_"
+      );
 
+      if (unlockDoor === "1234") {
+        console.log("You entered the right passcode. Onto the next room");
+        roomOne.exit();
+      } else {
+        console.log("Wrong passcode");
+      }
+    } else {
+      console.log(`Sorry I don't know how to ${answer}.`);
     }
 
-    else { console.log(`Sorry I don't know how to ${answer}.`);}
-
-    answer = await ask(">_")
+    answer = await ask(">_");
   }
 }
 
-
-
-//let action = 
+//let action =
 //If answer includes  a word from the key of any action from action bank, then que action function//
 // if((actionBank.forEach(action => {answer.includes(actionBank.action)){
-            //actionBank.actionfunction()
+//actionBank.actionfunction()
 //}
 
 //actionBank.values(actionBank)
