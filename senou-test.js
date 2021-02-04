@@ -21,6 +21,10 @@ class Room {
 
   hidden() {}
 
+  read() {
+    return this.descriptor;
+  }
+
   sendItems() {
     let poppedItem = this.items.pop();
     player.inventory.push(poppedItem);
@@ -115,7 +119,7 @@ async function start() {
     //Room descriptor
     //Is it possible to be like => if answer include wordBank.action, then actionFunction for specific room?
     if (answer.trim() === "look around") {
-      console.log(roomOne.descriptor);
+      console.log(roomOne.read());
     }
     //Acquire passcode
     else if (answer.trim().includes("read")) {
