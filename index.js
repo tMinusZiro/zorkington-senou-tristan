@@ -10,10 +10,13 @@ function ask(questionText) {
   });
 }
 
-//room class
+//variables
+let prompt = ">_";
+
+//room class that will have some basic methods and a constructor
 class Room {
   constructor(secretItem, items = [], props = []) {
-    this.secretItem = secretItem || "key";
+    this.secretItem = secretItem || "key"; //default key
     this.items = items;
     this.props = props;
   }
@@ -21,10 +24,12 @@ class Room {
   hidden() {}
 
   items() {}
-
+  //
   exit() {
-    if (this.secretItem === "key") {
+    //if the player has the secret item in inventory then the room can be unlocked
+    if (player.inventory.includes(this.secretItem)) {
       console.log(`The key has been accepted and the door opened`);
+      gameObjective.rooms.roomOne = "unlocked"; //playing around with changing state by sending messages to other objects - this changes the roomOne state in gameObjective object
     } else {
       console.log("You are still stuck in this room");
     }
@@ -43,11 +48,15 @@ let player = {
     nextStatus: ["sleep", "brave", "scared"],
   },
 
-  inventory: [],
+  inventory: ["key", "camera"],
 
   playerStatus: function () {},
 
-  playerInventory: function () {},
+  playerInventory: function () {
+    this.inventory.forEach((item) => {
+      console.log(item);
+    });
+  },
 };
 
 //game object
@@ -65,7 +74,8 @@ let gameObjective = {
       this.roomOne === "unlocked" ||
       this.roomTwo === "unlocked" ||
       this.roomThree === "unlocked" ||
-      this.roomFour === "unlocked"
+      this.roomFour === "unlocked" ||
+      this.roomFive === "unlocked"
     ) {
       console.log(`you won`);
       process.exit();
@@ -73,7 +83,8 @@ let gameObjective = {
   },
 };
 
-start();
+//room instances:
+let firstRoom = new Room("key", ["stick", "bat"], "chair");
 
 async function start() {
   const welcomeMessage = `182 Main St.
@@ -83,16 +94,25 @@ async function start() {
   let answer = await ask(welcomeMessage);
   //guard clause for first prompt that will reject all output besides 'read sign'
   while (answer !== "read sign") {
-    answer = await ask(">_");
+    answer = await ask(prompt);
     if (answer === "read sign") {
       break;
     }
     console.log(`Sorry I don't know how to ${answer}.`);
   }
-  signs.read();
 
+  let testMessage = await ask(
+    `The sign says "Welcome to Burlington Code Academy! 
+    Come on up to the third floor. 
+    If the door is locked, use the code 12345."`
+  );
+  //just type open door for now and see what gets logged out
+  answer = await ask(prompt);
+  if (answer === "open door") {
+    firstRoom.exit(); //opens door to next room
+    console.log({ gameObjective }); // you can see the changed state in the game object
+  }
+  console.log({ firstRoom });
   process.exit();
 }
-
-//tester
-//change
+start();
