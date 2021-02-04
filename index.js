@@ -23,7 +23,10 @@ class Room {
 
   hidden() {}
 
-  items() {}
+  items() {
+    //need to be able to send message to player object to push any item that the user picks up in a particular room
+    //need to be able to drop items in a given room as well which would just add it to room inventory
+  }
   //
   exit() {
     //if the player has the secret item in inventory then the room can be unlocked
@@ -116,3 +119,6 @@ async function start() {
   process.exit();
 }
 start();
+
+//to-do List (ideas as well)
+//create intermediate variable packages for our rooms => just pass in the variable to the room instead of manually typing in items, furniture, etc...
