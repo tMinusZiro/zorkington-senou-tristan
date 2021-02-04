@@ -16,11 +16,12 @@ let prompt = ">_";
 
 //Room Builder
 class Room {
-  constructor(descriptor, secretItem, items = [], props = []) {
+  constructor(descriptor, secretItem, items = [], props = [], toolbox = []) {
     this.descriptor = descriptor;
     this.secretItem = secretItem || "key";
     this.items = items;
     this.props = props;
+    this.toolbox = toolbox;
   }
 
   hidden() {}
@@ -44,14 +45,15 @@ class Room {
 }
 
 //Input Possibility Bank//
-let wordBank = {
-  movement: ["forward", "backwards", "left", "right"],
-  action: ["read", "pick up", "look around"],
-};
+// let wordBank = {
+//   movement: ["forward", "backwards", "left", "right"],
+//   action: ["read", "pick up", "look around"],
+// };
 
 let actionBank = {
-  read: ["read", "look at", "examine"],
+  examine: ["read", "look at", "examine"],
   take: ["take", "pick up", "add to", "put in inventory"],
+  drop: ["drop"],
   exit: ["open door", "exit room", "leave"],
 };
 
@@ -67,6 +69,10 @@ let player = {
   playerStatus: function () {},
 
   playerInventory: function () {},
+
+  displayInventory: function () {
+    console.log(this.inventory);
+  },
 };
 
 //game object
@@ -110,17 +116,49 @@ let roomOne = new Room(
   "cement block"
 );
 
+let streetRoomOne = new Room(
+  "You exit the house. Light blinds you but they adjust. An empty street sprawls out before you. You see a notebook on the bench.",
+  "",
+  ["notebook"],
+  ["car", "bench", "bird"]
+);
+let streetRoomTwo = new Room(
+  "On the left you see a house that has burnt down some time ago.\nOn the right there seems to be a house in pristine condition.\nAlmost like someone lives there.\ncrashed 100 yards down. ",
+  "",
+  [""],
+  ["rubble"]
+);
+
+let houseLeftRoom= new Room(
+  "There isn't much left. The stairs have collapsed and most of the household items don't seem to be of much use. A toolbox is hidden under some debris",
+  "",
+  [""],
+  ["rubble"],
+  ["map"]
+);
+
+let houseRightRoom = new Room(
+  "This house seems meticulously taken care of. Clean carpets, dishes on the table, fruit in the bowl.",
+  "",
+  ["knife", "fruit", "gallon jug"],
+  ["carpet"],
+  ""
+);
+let planeRoom = new Room(
+  "This house seems meticulously taken care of. Clean carpets, dishes on the table, fruit in the bowl.",
+  "",
+  ["knife", "fruit", "gallon jug"],
+  ["carpet"],
+  ""
+);
+
 //Begin Game
 start();
 
 async function start() {
   console.log(`Welcome to Room One.`);
-  let roomOne = new Room(
-    "The room is a grey box. In the corner you there's a stick and a ball, immovable object that you can look at, and a door on the opposite side of the room",
-    "key",
-    ["a stick", "a ball"],
-    "cement block with numbers written on it as well as a little slot with a key inside"
-  );
+  console.log(roomOne);
+
   let answer = await ask(prompt);
 
   //Room interaction block =>
@@ -150,13 +188,90 @@ async function start() {
       if (unlockDoor === "1234") {
         console.log("You entered the right passcode. Onto the next room");
         roomOne.exit();
+        nextStreetRoomOne();
       } else {
         console.log("Wrong passcode");
       }
     } else {
       console.log(`Sorry I don't know how to ${answer}.`);
     }
+    answer = await ask(">_");
+  }
+}
 
+async function nextStreetRoomOne() {
+  console.log(`You're in Street Room.`);
+  console.log(streetRoomOne);
+  let answer = await ask(prompt);
+
+  while (answer.trim() !== true) {
+    if (answer.trim() === "look around") {
+      console.log(streetRoomOne.read());
+    }
+    ///Add specific item from specific room to player inventory
+    else if (answer === "take notebook") {
+      console.log(`Hmm a note book. I wonder if the owner is still alive.`);
+      streetRoomOne.sendItems();
+      //Check block start//
+      console.log({ streetRoomOne });
+      console.log({ player });
+      //Check block end//
+    }
+    //Exit Room
+    else if (answer.trim() == "go back") {
+      //This will send you back to roomOne
+      console.log("You walk back into the room from which you woke.\n>_");
+      start();
+    } else if (answer.trim() == "walk down street") {
+      console.log(
+        "You walk further down the street and see two houses.\nThe one on the left seems to have burned down long ago.\nThe house on the right is pristine. I wonder if someone lives there.\n>_"
+      );
+      nextStreetRoomTwo();
+    } else {
+    console.log(`Sorry I don't know how to ${answer}.`);
+    }
+    answer = await ask(">_");
+  }
+}
+
+async function nextStreetRoomtwo() {
+  console.log(`You're in Street Room Two.`);
+  console.log(streetRoomTwo);
+  let answer = await ask(prompt);
+
+  while (answer.trim() !== true) {
+    if (answer.trim() === "look around") {
+      console.log(streetRoomTwo.read());
+    }
+    ///Add specific item from specific room to player inventory
+    else if (answer === "take rubble") {
+      console.log(`You can't carry rocks with you.`);
+      //Check block start//
+      console.log({ streetRoomTwo});
+      console.log({ player });
+      //Check block end//
+    }
+    //Exit Room
+    else if (answer.trim() == "go back") {
+      //This will send you back to roomOne
+      console.log("You walk back into the room from which you woke.\n>_");
+      streetRoomOne();
+    } else if (answer.trim() == "walk down street") {
+      console.log(
+        "You walk towards the airplane.\n>_"
+      );
+      nextPlaneRoom();
+    } else if (answer.trim() == "house left") {
+      console.log("You walk to house on th eleft.\n>_");
+      nextHouseLeftRoom();
+    } else if (answer.trim() == "house right") {
+      console.log(
+        "You walk to the house on the right.\n>_"
+      );
+      nextHouseRightRoom();
+    } else {
+    console.log(`Sorry I don't know how to ${answer}.`);
+    }
     answer = await ask(">_");
   }
 }
