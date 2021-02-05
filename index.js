@@ -386,7 +386,7 @@ async function nextHouseRightRoom() {
   console.log(
     `Commands:\nread | look around | take | forward | backward | display inventory\n`
   );
-  console.log(`You entered the nice house`);
+  console.log(`You entered the nice house.`);
   answer = await ask(prompt);
 
   while (answer.trim() !== true) {
@@ -428,10 +428,12 @@ async function nextHouseRightRoom() {
 
 //Plane Room
 async function nextPlaneRoom() {
-  console.log(`You're in Plane Room`);
-  console.log(planeRoom);
   console.log(
-    `You enter the plan and immediately notice a thick odor hanging the air.\nIt looks like something or someone has been living in here.\nYou notice a dark hole in the floor that leads to the bowels of plane. A clear path leads towards the cockpit.`
+    `Commands:\nread | look around | take | forward | backward | display inventory\n
+    go left` 
+  );
+  console.log(
+    `You enter the plane and immediately notice a thick odor hanging the air.\nIt looks like something or someone has been living in here.\nYou notice a dark hole in the floor that leads to the bowels of plane. A clear path leads towards the cockpit.`
   );
   answer = await ask(prompt);
 
@@ -440,12 +442,8 @@ async function nextPlaneRoom() {
       console.log(planeRoom.read());
     }
     ///Add specific item from specific room to player inventory
-    else if (answer === "take rubble") {
-      console.log(`What rubble?`);
-      //Check block start//
-      console.log({ planeRoom });
-      console.log({ player });
-      //Check block end//
+    else if (answer === "take") {
+      console.log(`There's nothing to take`);
     } else if (answer === "display inventory") {
       console.log("You have these items in your inventory:");
       player.inventory.forEach(function (item) {
@@ -461,18 +459,16 @@ async function nextPlaneRoom() {
       }
     }
     //Exit Room
-    else if (answer.trim() == "go back") {
+    else if (answer.trim() == "backward") {
       //This will send you back to roomOne
       console.log("You exit the plane and head back towards the street.\n>_");
       streetRoomTwo();
-    } else if (answer.trim() == "go to cockpit") {
+    } else if (answer.trim() == "forward") {
       console.log("You walk towards the cockpit\n>_");
       nextCockpitRoom();
-    } else if (answer.trim() == "go to hole") {
+    } else if (answer.trim() == "go left") {
       console.log("You nervously begin to climb down into the bowels.\n>_");
       nextCargoRoom();
-    } else if (answer.trim() == "place holder for fun stuff") {
-      console.log("We need to improve this game\n");
     } else {
       console.log(`Sorry I don't know how to ${answer}.`);
     }
@@ -482,8 +478,9 @@ async function nextPlaneRoom() {
 
 //cockpit room
 async function nextCockpitRoom() {
-  console.log(`You're now in the Cockpit.`);
-  console.log(cockpitRoom);
+  console.log(
+    `Commands:\nread | look around | take | forward | backward | display inventory\n`
+  );
   console.log(`You head down the aisle and enter the cockpit`);
   answer = await ask(prompt);
 
@@ -492,14 +489,11 @@ async function nextCockpitRoom() {
       console.log(cockpitRoom.read());
     }
     ///Add specific item from specific room to player inventory
-    else if (answer === "take radio") {
+    else if (answer === "take") {
       console.log(
         `It seems the radio is attached to the wall.\nMaybe if you had a screwdriver you take it off.`
       );
-      //Check block start//
-      console.log({ cockpitRoom });
-      console.log({ player });
-      //Check block end//
+
     } else if (answer === "display inventory") {
       console.log("You have these items in your inventory:");
       player.inventory.forEach(function (item) {
@@ -515,17 +509,15 @@ async function nextCockpitRoom() {
       }
     }
     //Exit Room
-    else if (answer.trim() == "go back") {
+    else if (answer.trim() === "backward") {
       //This will send you back to roomOne
       console.log("You leave the cockpit and head back down the aisle\n>_");
       nextPlaneRoom();
-    } else if (answer.trim() == "exit window") {
+    } else if (answer.trim() === "forward") {
       console.log(
         "Climbing out of this window is no problem.\nThat ladder leading into a giant hole in the earth is another matter entirely.\n>_"
       );
       nextCaveEntrance();
-    } else if (answer.trim() == "take computer stuff") {
-      console.log("You'll need to take a BCA Bootcamp in order to take that.");
     } else {
       console.log(`Sorry I don't know how to ${answer}.`);
     }
@@ -535,7 +527,9 @@ async function nextCockpitRoom() {
 
 //cargo room
 async function nextCargoRoom() {
-  console.log(`You're in the cargo hold`);
+  console.log(
+    `Commands:\nread | look around | take | forward | backward | display inventory\n` 
+  );
   console.log(cargoRoom);
   console.log(`Geeze it's dark down here.`);
   answer = await ask(prompt);
@@ -543,14 +537,6 @@ async function nextCargoRoom() {
   while (answer.trim() !== true) {
     if (answer.trim() === "look around") {
       console.log(cargoRoom.read());
-    }
-    ///Add specific item from specific room to player inventory
-    else if (answer === "use flash light") {
-      console.log(`You don't have one`);
-      //Check block start//
-      console.log({ cargoRoom });
-      console.log({ player });
-      //Check block end//
     } else if (answer === "display inventory") {
       console.log("You have these items in your inventory:");
       player.inventory.forEach(function (item) {
@@ -564,17 +550,19 @@ async function nextCargoRoom() {
       } else {
         console.log(`I don't have anything to read.`);
       }
+    } else if (answer.trim() === "take"){
+      console.log("It's so dark in here. I can't find anything to take.")
     }
     //Exit Room
-    else if (answer.trim() == "go back") {
+    else if (answer.trim() === "backward") {
       //This will send you back to roomOne
       console.log("Great decision. You climb out of that dank hole.\n>_");
       nextPlaneRoom();
-    } else if (answer.trim() == "place holder") {
-      console.log("Do Stuff.");
-    } else if (answer.trim() == "plae holder") {
-      console.log("Do Stuff ");
-    } else {
+    }
+    else if  (answer.trim() === "forward") {
+      //This will send you back to roomOne
+      console.log("You walk forward and smash your head on something. Perhaps you should go back.\n>_");
+    }  else {
       console.log(`Sorry I don't know how to ${answer}.`);
     }
     answer = await ask(">_");
@@ -583,7 +571,6 @@ async function nextCargoRoom() {
 //Cave Entrance
 async function nextCaveEntrance() {
   console.log(`You're in the Cave Entrance`);
-  console.log(caveEntrance);
   answer = await ask(prompt);
 
   while (answer.trim() !== true) {
