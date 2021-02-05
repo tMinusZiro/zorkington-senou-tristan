@@ -31,13 +31,12 @@ class Room {
     return this.descriptor;
   }
 
-  flipToolbox() {
+  openToolbox() {
     if (this.toolbox === "closed") {
       this.toolbox = "open";
       console.log(`You just opened the toolbox`);
     } else if (this.toolbox === "open") {
-      this.toolbox = "closed";
-      console.log(`You just closed the toolbox`);
+      console.log(`This tool box has already been open`);
     }
   }
 
@@ -119,7 +118,7 @@ let roomOne = new Room(
 );
 
 let streetRoomOne = new Room(
-  "You exit the house. Light blinds you but they adjust. An empty street sprawls out before you. You see a notebook on the bench.",
+  "Light blinds you but they adjust. An empty street sprawls out before you. You see a notebook on the bench.",
   "",
   ["notebook"],
   ["car", "bench", "bird"]
@@ -190,7 +189,9 @@ let answer;
 start();
 
 async function start() {
-  console.log(`Welcome:\nCommands: open door | read | look around | take`);
+  console.log(
+    `Welcome:\nCommands: open door | read | look around | take | display inventory`
+  );
   //actionBank.displayInventory((answer = await ask(prompt)));
   answer = await ask(prompt);
   //Room interaction block =>
@@ -208,13 +209,16 @@ async function start() {
     else if (answer === "take") {
       console.log(`Oh nice a bat`);
       roomOne.sendItems();
-      console.log({ roomOne });
-      console.log({ player });
+    } else if (answer === "display inventory") {
+      console.log("You have these items in your inventory:");
+      player.inventory.forEach(function (item) {
+        console.log(item);
+      });
     }
     //Exit Room
     else if (answer.trim() == "open door") {
       if (gameObjective.rooms.roomOne === "unlocked") {
-        console.log(`This door has been unlocked, proceed`);
+        console.log(`This door has already been unlocked, proceed`);
         nextStreetRoomOne();
       }
       let unlockDoor = await ask(
@@ -222,7 +226,6 @@ async function start() {
       );
 
       if (unlockDoor === "1234") {
-        console.log("You entered the right passcode. Onto the next room");
         roomOne.exit();
         nextStreetRoomOne();
       } else {
@@ -237,8 +240,10 @@ async function start() {
 }
 
 async function nextStreetRoomOne() {
-  console.log(`You're in Street Room.`);
-  console.log(streetRoomOne);
+  console.log(
+    `\nCommands: read | look around | take | forward | backward | display inventory`
+  );
+
   answer = await ask(prompt);
 
   while (answer.trim() !== true) {
@@ -246,20 +251,29 @@ async function nextStreetRoomOne() {
       console.log(streetRoomOne.read());
     }
     ///Add specific item from specific room to player inventory
-    else if (answer === "take notebook") {
+    else if (answer.trim() === "take") {
       console.log(`Hmm a note book. I wonder if the owner is still alive.`);
       streetRoomOne.sendItems();
-      //Check block start//
-      console.log({ streetRoomOne });
-      console.log({ player });
-      //Check block end//
+    } else if (answer === "read") {
+      if (player.inventory.includes("notebook")) {
+        console.log(
+          `There is writing in it but it seems to be in some other language\nThere are also drawings that look like hooded figures in a cave.....weird`
+        );
+      } else {
+        console.log(`I don't have anything to read.`);
+      }
+    } else if (answer === "display inventory") {
+      console.log("You have these items in your inventory:");
+      player.inventory.forEach(function (item) {
+        console.log(item);
+      });
     }
     //Exit Room
-    else if (answer.trim() == "go back") {
+    else if (answer.trim() == "backward") {
       //This will send you back to roomOne
       console.log("You walk back into the room from which you woke.\n>_");
       start();
-    } else if (answer.trim() == "walk down street") {
+    } else if (answer.trim() == "forward") {
       console.log(
         "You walk further down the street and see two houses.\nThe one on the left seems to have burned down long ago.\nThe house on the right is pristine. I wonder if someone lives there.\n>_"
       );
@@ -272,8 +286,9 @@ async function nextStreetRoomOne() {
 }
 
 async function nextStreetRoomTwo() {
-  console.log(`You're in Street Room Two.`);
-  console.log(streetRoomTwo);
+  console.log(
+    `\nCommands:\nread | look around | take | forward | backward | display inventory\ngo left | go right`
+  );
   answer = await ask(prompt);
 
   while (answer.trim() !== true) {
@@ -281,25 +296,34 @@ async function nextStreetRoomTwo() {
       console.log(streetRoomTwo.read());
     }
     ///Add specific item from specific room to player inventory
-    else if (answer === "take rubble") {
-      console.log(`You can't carry rocks with you.`);
-      //Check block start//
-      console.log({ streetRoomTwo });
-      console.log({ player });
-      //Check block end//
+    else if (answer === "take") {
+      console.log(`There nothing to take.`);
+    } else if (answer === "display inventory") {
+      console.log("You have these items in your inventory:");
+      player.inventory.forEach(function (item) {
+        console.log(item);
+      });
+    } else if (answer === "read") {
+      if (player.inventory.includes("notebook")) {
+        console.log(
+          `There is writing in it but it seems to be in some other language\nThere are also drawings that look like hooded figures in a cave.....weird`
+        );
+      } else {
+        console.log(`I don't have anything to read.`);
+      }
     }
     //Exit Room
-    else if (answer.trim() == "go back") {
+    else if (answer.trim() == "backward") {
       //This will send you back to roomOne
       console.log("\nYou walk back towards the bench\n>_");
       nextStreetRoomOne();
-    } else if (answer.trim() == "walk down street") {
+    } else if (answer.trim() == "forward") {
       console.log("\nYou walk towards the airplane.\n>_");
       nextPlaneRoom();
-    } else if (answer.trim() == "enter burned house") {
+    } else if (answer.trim() == "go left") {
       console.log("\nYou walk over to that burned down house.\n>_");
       nextHouseLeftRoom();
-    } else if (answer.trim() == "enter nice house") {
+    } else if (answer.trim() == "go right") {
       console.log(
         "\nYou walk over to that beautiful georgian style house.\n>_"
       );
@@ -312,8 +336,9 @@ async function nextStreetRoomTwo() {
 }
 
 async function nextHouseLeftRoom() {
-  console.log(`You're in House Left Room`);
-  console.log(houseLeftRoom);
+  console.log(
+    `Commands:\nread | look around | take | backward | display inventory`
+  );
   console.log(`You have entered this decrepit old house.`);
   answer = await ask(prompt);
 
@@ -322,26 +347,34 @@ async function nextHouseLeftRoom() {
       console.log(houseLeftRoom.read());
     }
     ///Add specific item from specific room to player inventory
-    else if (answer === "open toolbox") {
-      houseLeftRoom.flipToolbox();
+    else if (answer === "take") {
+      houseLeftRoom.openToolbox();
       houseLeftRoom.revealMap();
-
-      //Check block start//
-      console.log({ houseLeftRoom });
-      console.log({ player });
-      //Check block end//
-    } else if (answer.trim() === "take map") {
-      houseLeftRoom.sendItems();
+      let mapQuestion = await ask(`Do you want to take the map?`);
+      if (mapQuestion.trim() === "take" || mapQuestion.trim() === "take map") {
+        houseLeftRoom.sendItems();
+      }
+    } else if (answer === "display inventory") {
+      console.log("You have these items in your inventory:");
+      player.inventory.forEach(function (item) {
+        console.log(item);
+      });
+    } else if (answer === "read") {
+      if (player.inventory.includes("notebook")) {
+        console.log(
+          `There is writing in it but it seems to be in some other language\nThere are also drawings that look like hooded figures in a cave.....weird`
+        );
+      } else {
+        console.log(`I don't have anything to read.`);
+      }
     }
     //Exit Room
-    else if (answer.trim() == "go back") {
+    else if (answer.trim() == "backward") {
       //This will send you back to roomOne
       console.log(
         "\nYou exit the house and walk back outside to the street\n>_"
       );
       nextStreetRoomTwo();
-    } else if (answer.trim() == "take rubble") {
-      console.log("Why would you want to take a pile of trash.");
     } else {
       console.log(`Sorry I don't know how to ${answer}.`);
     }
@@ -350,8 +383,9 @@ async function nextHouseLeftRoom() {
 }
 
 async function nextHouseRightRoom() {
-  console.log(`You're in the Nice House`);
-  console.log(houseRightRoom);
+  console.log(
+    `Commands:\nread | look around | take | forward | backward | display inventory\n`
+  );
   console.log(`You entered the nice house`);
   answer = await ask(prompt);
 
@@ -360,23 +394,28 @@ async function nextHouseRightRoom() {
       console.log(houseRightRoom.read());
     }
     ///Add specific item from specific room to player inventory
-    else if (
-      answer.trim() === "take knife" ||
-      answer.trim() === "take gallon jug" ||
-      answer.trim() === "take fruit"
-    ) {
+    else if (answer.trim() === "take") {
       houseRightRoom.sendItems();
-      //Check block start//
-      console.log({ streetRoomTwo });
-      console.log({ player });
-      //Check block end//
+    } else if (answer === "display inventory") {
+      console.log("You have these items in your inventory:");
+      player.inventory.forEach(function (item) {
+        console.log(item);
+      });
+    } else if (answer === "read") {
+      if (player.inventory.includes("notebook")) {
+        console.log(
+          `There is writing in it but it seems to be in some other language\nThere are also drawings that look like hooded figures in a cave.....weird`
+        );
+      } else {
+        console.log(`I don't have anything to read.`);
+      }
     }
     //Exit Room
-    else if (answer.trim() == "go back") {
+    else if (answer.trim() == "backwards") {
       //This will send you back to roomOne
       console.log("\nYou walk back out into the street.\n>_");
       nextStreetRoomTwo();
-    } else if (answer.trim() == "enter kitchen") {
+    } else if (answer.trim() == "forward") {
       console.log(
         "I want to but my sense of adventure is calling me back outside."
       );
@@ -407,6 +446,19 @@ async function nextPlaneRoom() {
       console.log({ planeRoom });
       console.log({ player });
       //Check block end//
+    } else if (answer === "display inventory") {
+      console.log("You have these items in your inventory:");
+      player.inventory.forEach(function (item) {
+        console.log(item);
+      });
+    } else if (answer === "read") {
+      if (player.inventory.includes("notebook")) {
+        console.log(
+          `There is writing in it but it seems to be in some other language\nThere are also drawings that look like hooded figures in a cave.....weird`
+        );
+      } else {
+        console.log(`I don't have anything to read.`);
+      }
     }
     //Exit Room
     else if (answer.trim() == "go back") {
@@ -448,6 +500,19 @@ async function nextCockpitRoom() {
       console.log({ cockpitRoom });
       console.log({ player });
       //Check block end//
+    } else if (answer === "display inventory") {
+      console.log("You have these items in your inventory:");
+      player.inventory.forEach(function (item) {
+        console.log(item);
+      });
+    } else if (answer === "read") {
+      if (player.inventory.includes("notebook")) {
+        console.log(
+          `There is writing in it but it seems to be in some other language\nThere are also drawings that look like hooded figures in a cave.....weird`
+        );
+      } else {
+        console.log(`I don't have anything to read.`);
+      }
     }
     //Exit Room
     else if (answer.trim() == "go back") {
@@ -486,6 +551,19 @@ async function nextCargoRoom() {
       console.log({ cargoRoom });
       console.log({ player });
       //Check block end//
+    } else if (answer === "display inventory") {
+      console.log("You have these items in your inventory:");
+      player.inventory.forEach(function (item) {
+        console.log(item);
+      });
+    } else if (answer === "read") {
+      if (player.inventory.includes("notebook")) {
+        console.log(
+          `There is writing in it but it seems to be in some other language\nThere are also drawings that look like hooded figures in a cave.....weird`
+        );
+      } else {
+        console.log(`I don't have anything to read.`);
+      }
     }
     //Exit Room
     else if (answer.trim() == "go back") {
@@ -519,6 +597,19 @@ async function nextCaveEntrance() {
       console.log({ caveEntrance });
       console.log({ player });
       //Check block end//
+    } else if (answer === "display inventory") {
+      console.log("You have these items in your inventory:");
+      player.inventory.forEach(function (item) {
+        console.log(item);
+      });
+    } else if (answer === "read") {
+      if (player.inventory.includes("notebook")) {
+        console.log(
+          `There is writing in it but it seems to be in some other language\nThere are also drawings that look like hooded figures in a cave.....weird`
+        );
+      } else {
+        console.log(`I don't have anything to read.`);
+      }
     }
     //Exit Room
     else if (answer.trim() == "go back") {
@@ -561,6 +652,19 @@ async function nextCaveOne() {
       console.log({ caveOne });
       console.log({ player });
       //Check block end//
+    } else if (answer === "display inventory") {
+      console.log("You have these items in your inventory:");
+      player.inventory.forEach(function (item) {
+        console.log(item);
+      });
+    } else if (answer === "read") {
+      if (player.inventory.includes("notebook")) {
+        console.log(
+          `There is writing in it but it seems to be in some other language\nThere are also drawings that look like hooded figures in a cave.....weird`
+        );
+      } else {
+        console.log(`I don't have anything to read.`);
+      }
     }
     //Exit Room
     else if (answer.trim() === "go back") {
@@ -602,6 +706,19 @@ async function nextCaveTwo() {
       console.log({ streetRoomTwo });
       console.log({ player });
       //Check block end//
+    } else if (answer === "display inventory") {
+      console.log("You have these items in your inventory:");
+      player.inventory.forEach(function (item) {
+        console.log(item);
+      });
+    } else if (answer === "read") {
+      if (player.inventory.includes("notebook")) {
+        console.log(
+          `There is writing in it but it seems to be in some other language\nThere are also drawings that look like hooded figures in a cave.....weird`
+        );
+      } else {
+        console.log(`I don't have anything to read.`);
+      }
     }
     //Exit Room
     else if (answer.trim() == "go back") {
