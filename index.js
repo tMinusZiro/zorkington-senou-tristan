@@ -10,10 +10,6 @@ function ask(questionText) {
   });
 }
 
-//Global Variables//
-
-let prompt = ">_";
-
 //Room Builder
 class Room {
   constructor(descriptor, secretItem, items = [], props = [], toolbox) {
@@ -57,24 +53,29 @@ class Room {
 
   exit() {
     if (this.secretItem === "key") {
-      console.log(`The key has been accepted and the door opened`);
+      console.log(`The passcode has been accepted and the door opened`);
+      gameObjective.rooms.roomOne = "unlocked";
     } else {
       console.log("You are still stuck in this room");
     }
   }
 }
 
-//Input Possibility Bank//
-// let wordBank = {
-//   movement: ["forward", "backwards", "left", "right"],
-//   action: ["read", "pick up", "look around"],
-// };
-
 let actionBank = {
-  examine: ["read", "look at", "examine"],
-  take: ["take", "pick up", "add to", "put in inventory"],
+  examine: ["read", "look", "examine"],
+  take: ["take", "pick", "add"],
   drop: ["drop"],
   exit: ["open door", "exit room", "leave"],
+  display: ["display", "show"],
+
+  displayInventory: function (answer) {
+    console.log("You have these items in your inventory:");
+    actionBank.display.forEach(function (item) {
+      if (answer === item) {
+        console.log(player.inventory);
+      }
+    });
+  },
 };
 
 //player object
@@ -91,7 +92,10 @@ let player = {
   playerInventory: function () {},
 
   displayInventory: function () {
-    console.log(this.inventory);
+    console.log("You have these items in your inventory:");
+    player.inventory.forEach(function (item) {
+      console.log(item);
+    });
   },
 };
 
@@ -103,28 +107,6 @@ let gameObjective = {
     roomThree: "locked",
     roomFour: "locked",
     roomFive: "locked",
-  },
-
-  inRoom: {
-    roomOne: "true",
-    roomTwo: "false",
-    roomThree: "false",
-    roomFour: "false",
-    roomFive: "false",
-  },
-
-  //need to know what room player is in
-
-  winGame: function () {
-    if (
-      this.roomOne === "unlocked" ||
-      this.roomTwo === "unlocked" ||
-      this.roomThree === "unlocked" ||
-      this.roomFour === "unlocked"
-    ) {
-      console.log(`you won`);
-      process.exit();
-    }
   },
 };
 
@@ -200,15 +182,17 @@ let caveTwo = new Room(
   "Suddenly your vision comes into focus and you can't believe your eyes. Inside of a large cavern a ring of hooded figures are on there knees surrounding a glowing orb.\nIt looks like they worship it.\nYour sense of adventure compels you to go forward. But you're also really scared, maybe you should go back."
 );
 
+//Global Variables//
+let prompt = ">_";
+let answer;
+
 //Begin Game
 start();
 
 async function start() {
-  console.log(`Welcome to Room One.`);
-  console.log(roomOne);
-
-  let answer = await ask(prompt);
-
+  console.log(`Welcome:\nCommands: open door | read | look around | take`);
+  //actionBank.displayInventory((answer = await ask(prompt)));
+  answer = await ask(prompt);
   //Room interaction block =>
   while (answer.trim() !== true) {
     //Room descriptor
@@ -221,7 +205,7 @@ async function start() {
       console.log(`The ${roomOne.props} has a passcode on it - 1234`);
     }
     ///Add specific item from specific room to player inventory
-    else if (answer === "take bat") {
+    else if (answer === "take") {
       console.log(`Oh nice a bat`);
       roomOne.sendItems();
       console.log({ roomOne });
@@ -229,6 +213,10 @@ async function start() {
     }
     //Exit Room
     else if (answer.trim() == "open door") {
+      if (gameObjective.rooms.roomOne === "unlocked") {
+        console.log(`This door has been unlocked, proceed`);
+        nextStreetRoomOne();
+      }
       let unlockDoor = await ask(
         "The door has a passcode. If you know it, enter it now.\n>_"
       );
@@ -243,6 +231,7 @@ async function start() {
     } else {
       console.log(`Sorry I don't know how to ${answer}.`);
     }
+
     answer = await ask(">_");
   }
 }
@@ -250,7 +239,7 @@ async function start() {
 async function nextStreetRoomOne() {
   console.log(`You're in Street Room.`);
   console.log(streetRoomOne);
-  let answer = await ask(prompt);
+  answer = await ask(prompt);
 
   while (answer.trim() !== true) {
     if (answer.trim() === "look around") {
@@ -285,7 +274,7 @@ async function nextStreetRoomOne() {
 async function nextStreetRoomTwo() {
   console.log(`You're in Street Room Two.`);
   console.log(streetRoomTwo);
-  let answer = await ask(prompt);
+  answer = await ask(prompt);
 
   while (answer.trim() !== true) {
     if (answer.trim() === "look around") {
@@ -326,7 +315,7 @@ async function nextHouseLeftRoom() {
   console.log(`You're in House Left Room`);
   console.log(houseLeftRoom);
   console.log(`You have entered this decrepit old house.`);
-  let answer = await ask(prompt);
+  answer = await ask(prompt);
 
   while (answer.trim() !== true) {
     if (answer.trim() === "look around") {
@@ -364,7 +353,7 @@ async function nextHouseRightRoom() {
   console.log(`You're in the Nice House`);
   console.log(houseRightRoom);
   console.log(`You entered the nice house`);
-  let answer = await ask(prompt);
+  answer = await ask(prompt);
 
   while (answer.trim() !== true) {
     if (answer.trim() === "look around") {
@@ -405,7 +394,7 @@ async function nextPlaneRoom() {
   console.log(
     `You enter the plan and immediately notice a thick odor hanging the air.\nIt looks like something or someone has been living in here.\nYou notice a dark hole in the floor that leads to the bowels of plane. A clear path leads towards the cockpit.`
   );
-  let answer = await ask(prompt);
+  answer = await ask(prompt);
 
   while (answer.trim() !== true) {
     if (answer.trim() === "look around") {
@@ -444,7 +433,7 @@ async function nextCockpitRoom() {
   console.log(`You're now in the Cockpit.`);
   console.log(cockpitRoom);
   console.log(`You head down the aisle and enter the cockpit`);
-  let answer = await ask(prompt);
+  answer = await ask(prompt);
 
   while (answer.trim() !== true) {
     if (answer.trim() === "look around") {
@@ -484,7 +473,7 @@ async function nextCargoRoom() {
   console.log(`You're in the cargo hold`);
   console.log(cargoRoom);
   console.log(`Geeze it's dark down here.`);
-  let answer = await ask(prompt);
+  answer = await ask(prompt);
 
   while (answer.trim() !== true) {
     if (answer.trim() === "look around") {
@@ -517,7 +506,7 @@ async function nextCargoRoom() {
 async function nextCaveEntrance() {
   console.log(`You're in the Cave Entrance`);
   console.log(caveEntrance);
-  let answer = await ask(prompt);
+  answer = await ask(prompt);
 
   while (answer.trim() !== true) {
     if (answer.trim() === "look around") {
@@ -557,7 +546,7 @@ async function nextCaveOne() {
   console.log(
     `You head down the path and have to squeeze through a tight space`
   );
-  let answer = await ask(prompt);
+  answer = await ask(prompt);
 
   while (answer.trim() !== true) {
     if (answer.trim() === "look around") {
@@ -600,7 +589,7 @@ async function nextCaveTwo() {
   console.log(`You're in cave two.`);
   console.log(caveTwo);
   console.log(`Will fill in later`);
-  let answer = await ask(prompt);
+  answer = await ask(prompt);
 
   while (answer.trim() !== true) {
     if (answer.trim() === "look around") {
