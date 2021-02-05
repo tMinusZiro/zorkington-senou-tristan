@@ -34,9 +34,9 @@ player.inventory.push("book", "flashlight", "red button")
 console.log(player.inventory)
 
 //Call Function//
-testInventory()
+showInventory()
   
-async function testInventory(){
+async function showInventory(){
 let showInventory = await ask("Test to bring up inventory.")
 
 if (showInventory === "show inventory") {
@@ -48,5 +48,8 @@ if (showInventory === "show inventory") {
     console.log("I don't understand that input")
 }
 }
+
+
+//Now we can insert function into player object and link it to a key word
 
 
