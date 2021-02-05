@@ -618,7 +618,7 @@ async function nextCaveTwo() {
     else if (answer.trim() == "go back") {
       //This will send you back to roomOne
       console.log(
-        "Afte everything you've been through you're going to back out now?\nHave fun starting over."
+        "After everything you've been through you're going to back out now?\nHave fun starting over."
       );
       process.exit();
     } else if (answer.trim() == "place holder ") {
