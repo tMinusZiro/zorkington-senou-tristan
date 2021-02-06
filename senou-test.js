@@ -150,6 +150,50 @@ let gameObjective = {
   },
 };
 
+//state machine
+
+// let currentRoom = roomOne;
+// let roomTransitions = {
+//   roomOne: streetRoomOne,
+//   streetRoomOne: [streetRoomTwo, roomOne],
+//   streetRoomTwo: [streetRoomOne, houseLeftRoom, houseRightRoom, planeRoom],
+//   houseLeftRoom: streetRoomTwo,
+//   houseRightRoom: streetRoomTwo,
+//   planeRoom: [streetRoomTwo, cargoRoom, cockpitRoom],
+//   cargoRoom: planeRoom,
+//   cockpitRoom: [planeRoom, caveEntrance],
+//   caveEntrance: [cockpitRoom, caveOne],
+//   caveOne: [caveEntrance, caveTwo],
+//   caveTwo: caveOne,
+// };
+
+let currentRoom = "roomOne";
+let roomTransitions = {
+  roomOne: ["streetRoomOne"],
+  streetRoomOne: ["streetRoomTwo", "roomOne"],
+  streetRoomTwo: [
+    "streetRoomOne",
+    "houseLeftRoom",
+    "houseRightRoom",
+    "planeRoom",
+  ],
+  houseLeftRoom: ["streetRoomTwo"],
+  houseRightRoom: ["streetRoomTwo"],
+  planeRoom: ["streetRoomTwo", "cargo", "cockpit"],
+  cargo: ["planeRoom"],
+  cockpit: ["planeRoom", "caveEntrance"],
+  caveEntrance: ["cockpit", "caveRoomOne"],
+  caveRoomOne: ["cave entrance", "caveRooTwo"],
+  caveRoomTwo: ["caveRoomOne"],
+};
+function changeRoom(nextState) {
+  if (roomTransitions[currentRoom].includes(nextState)) {
+    currentRoom = nextState;
+  } else {
+    console.log(`Invalid state transition from ${currentRoom} to ${nextState}`);
+  }
+}
+
 //Room Instances
 let roomOne = new Room(
   "You are in a small room. In the corner there's a bat and a ball, and a door on the opposite side of the room.\nYou see a small cement block with something written on it\nEarly morning sunlight is streaming through the window.",
