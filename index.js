@@ -12,7 +12,7 @@ function ask(questionText) {
 
 //Room Builder
 class Room {
-  constructor(descriptor, secretItem, items = [], props = [], toolbox) {
+  constructor(descriptor, secretItem, items, props, toolbox) {
     this.descriptor = descriptor;
     this.secretItem = secretItem || "key";
     this.items = items;
@@ -20,23 +20,24 @@ class Room {
     this.toolbox = "closed";
   }
 
-  revealMap() {
-    if (this.toolbox === "open") {
-      this.secretItem = "map";
-      console.log(`Oh wow there's a map`);
-    }
-  }
 
   read() {
     return this.descriptor;
   }
-
+//"Hidden Item - a map is found within a toolbox. Once opened, stays open"
   openToolbox() {
     if (this.toolbox === "closed") {
       this.toolbox = "open";
       console.log(`You just opened the toolbox`);
     } else if (this.toolbox === "open") {
       console.log(`This tool box has already been open`);
+    }
+  }
+  
+  revealMap() {
+    if (this.toolbox === "open") {
+      this.secretItem = "map";
+      console.log(`Oh wow there's a map`);
     }
   }
 
@@ -86,10 +87,6 @@ let player = {
 
   inventory: [],
 
-  playerStatus: function () {},
-
-  playerInventory: function () {},
-
   displayInventory: function () {
     console.log("You have these items in your inventory:");
     player.inventory.forEach(function (item) {
@@ -98,7 +95,7 @@ let player = {
   },
 };
 
-//game object
+//game object//
 let gameObjective = {
   rooms: {
     roomOne: "locked",
@@ -111,14 +108,14 @@ let gameObjective = {
 
 //Room Instances
 let roomOne = new Room(
-  "You are in a small room. In the corner there's a bat and a ball, and a door on the opposite side of the room.\nYou see a small cement block with something written on it\nEarly morning sunlight is streaming through the window.",
+  "You are in a small room. In the corner there's a bat, and a door on the opposite side of the room.\nYou see a small cement block with something written on it\nEarly morning sunlight is streaming through the window.",
   "key",
   ["bat"],
   "cement block"
 );
 
 let streetRoomOne = new Room(
-  "Light blinds you but they adjust. An empty street sprawls out before you. You see a notebook on the bench.",
+  "Light blinds you but your eyes adjust.\nAn empty street sprawls out before you.\mYou see a notebook on the bench.",
   "",
   ["notebook"],
   ["car", "bench", "bird"]
@@ -131,14 +128,14 @@ let streetRoomTwo = new Room(
 );
 
 let houseLeftRoom = new Room(
-  "There isn't much left. The stairs have collapsed and most of the household items don't seem to be of much use. A toolbox is hidden under some debris",
+  "There isn't much left.\nThe stairs have collapsed and most of the household items don't seem to be of much use.\nA toolbox is hidden under some debris",
   "",
   [""],
   ["rubble"]
 );
 
 let houseRightRoom = new Room(
-  "This house seems meticulously taken care of. Clean carpets, dishes on the table, fruit in the bowl.",
+  "This house seems meticulously taken care of.\nClean carpets, dishes on the table, fruit in the bowl.\nPerhaps someone is living here but no one seems to be home.",
   "",
   ["knife", "fruit", "gallon jug"],
   ["carpet"],
@@ -153,14 +150,14 @@ let planeRoom = new Room(
 );
 
 let cargoRoom = new Room(
-  "Entering this dark hole seems like a terrible choice. Climbing down is difficult but you manage.\nIt is almost pitch black down here and that smell is even worse.\nIf only you had a light.",
+  "Entering this dark hole seems like a terrible choice.\nClimbing down is difficult but you manage.\nIt is almost pitch black down here and that smell is even worse.\nIf only you had a light.",
   "",
   ["special game winner"],
   ["monster", "storage containers", "body parts"]
 );
 
 let cockpitRoom = new Room(
-  "The windshields have been smashed out.\nThere seems to be a ladder attached to the nose of the plane. A crackling noise emanates from a radio on the floor.",
+  "The windshields have been smashed out.\nThere seems to be a ladder attached to the nose of the plane.\nA crackling noise emanates from a radio on the floor.",
   "",
   [],
   ["radio", "electrical plane controls"]
@@ -188,16 +185,15 @@ let answer;
 //Begin Game
 start();
 
+//Each async function will have identical commands +/- depending on instances of items or variances in next-room availability//
 async function start() {
   console.log(
     `Welcome:\nCommands: open door | read | look around | take | display inventory`
   );
-  //actionBank.displayInventory((answer = await ask(prompt)));
   answer = await ask(prompt);
   //Room interaction block =>
   while (answer.trim() !== true) {
     //Room descriptor
-    //Is it possible to be like => if answer include wordBank.action, then actionFunction for specific room?
     if (answer.trim() === "look around") {
       console.log(roomOne.read());
     }
@@ -221,6 +217,7 @@ async function start() {
         console.log(`This door has already been unlocked, proceed`);
         nextStreetRoomOne();
       }
+    //Must enter password correctly to exit room//Once exited, room stays open. 
       let unlockDoor = await ask(
         "The door has a passcode. If you know it, enter it now.\n>_"
       );
@@ -411,11 +408,11 @@ async function nextHouseRightRoom() {
       }
     }
     //Exit Room
-    else if (answer.trim() == "backward") {
+    else if (answer.trim() === "backward") {
       //This will send you back to roomOne
       console.log("\nYou walk back out into the street.\n>_");
       nextStreetRoomTwo();
-    } else if (answer.trim() == "forward") {
+    } else if (answer.trim() === "forward") {
       console.log(
         "I want to but my sense of adventure is calling me back outside."
       );
@@ -459,11 +456,11 @@ async function nextPlaneRoom() {
       }
     }
     //Exit Room
-    else if (answer.trim() == "backward") {
+    else if (answer.trim() === "backward") {
       //This will send you back to roomOne
       console.log("You exit the plane and head back towards the street.\n>_");
       nextStreetRoomTwo();
-    } else if (answer.trim() == "forward") {
+    } else if (answer.trim() === "forward") {
       console.log("You walk towards the cockpit\n>_");
       nextCockpitRoom();
     } else if (answer.trim() == "go left") {
@@ -696,12 +693,16 @@ async function nextCaveTwo() {
       }
     }
     //Exit Room
-    else if (answer.trim() == "backward") {
+    else if(answer.trim() === "forward"){
+      console.log("The orb seems to breathe, growing larger and larger. The light becomes brighter and brighter until the you can't bear to open your eyes again. Suddenly, you feel a wave of ecstacy wash over you. This is meant to be. It always was meant to be. You walk towards the orb and become one with it. You don a robe and kneel with the rest of the figures. Your sense of adventure compels you to stay right here. Where you've always belonged. ")
+      process.exit()
+    }
+    else if (answer.trim() === "backward") {
       //This will send you back to roomOne
       console.log(
         "After everything you've been through you're going to back out now?\nHave fun starting over."
       );
-      process.exit();
+      start();
     } else {
       console.log(`Sorry I don't know how to ${answer}.`);
     }

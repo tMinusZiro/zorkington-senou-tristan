@@ -150,7 +150,7 @@ let gameObjective = {
   },
 };
 
-//state machine
+// state machine
 
 // let currentRoom = roomOne;
 // let roomTransitions = {
@@ -195,6 +195,7 @@ function changeRoom(nextState) {
 }
 
 //Room Instances
+
 let roomOne = new Room(
   "You are in a small room. In the corner there's a bat and a ball, and a door on the opposite side of the room.\nYou see a small cement block with something written on it\nEarly morning sunlight is streaming through the window.",
   "key",
