@@ -10,16 +10,19 @@ function ask(questionText) {
   });
 }
 
-//Room Builder
+//Main class for our rooms that serves as a generalized version that can adapt to various instances
 class Room {
-  constructor(descriptor, secretItem, items = [], props = [], toolbox) {
-    this.descriptor = descriptor;
+  //our main variables for the constructor are intro: initial room description,
+  //secretItem: changes room to room but default is a key, items: represent mutable items in the room that can be interacted with i.e. picked up and placed in inventory,
+  //props: immutable items in a room that cannot be interacted with, toolbox: for one specific room we are considering using extends for instead
+  constructor(intro, secretItem, items = [], props = [], toolbox) {
+    this.intro = intro;
     this.secretItem = secretItem || "key";
     this.items = items;
     this.props = props;
     this.toolbox = "closed";
   }
-
+  //inside the toolbox is a map and can only be revealed if the toolbox is open
   revealMap() {
     if (this.toolbox === "open") {
       this.secretItem = "map";
@@ -28,31 +31,42 @@ class Room {
   }
 
   read() {
-    return this.descriptor;
+    return this.intro;
   }
 
+  //changes the state of the toolbox when the player interacts with the item
   openToolbox() {
     if (this.toolbox === "closed") {
-      this.toolbox = "open";
+      //default state is closed
+      this.toolbox = "open"; //when method is called state changes to open and will remain open if player comes back to item after interacting with it
       console.log(`You just opened the toolbox`);
     } else if (this.toolbox === "open") {
+      // will remain open
       console.log(`This tool box has already been open`);
     }
   }
 
+  //will send items from room inventory to player inventory
   sendItems() {
+    //if the secret item is a map then the user gets a specific message
+    //the way the game is set up now there is only one secret item in each room so there is no need to isolate the correct secret item
+    //and then pop() it out of an array and send it to player inventory
     if (this.secretItem === "map") {
       player.inventory.push(this.secretItem);
-      console.log(`You just put a map in your inventory`);
+      console.log(`You just put a map in your inventory`); //map message to player
     }
+    //the default operation for this method is to pop off the current item in the room's array
     let poppedItem = this.items.pop();
-    player.inventory.push(poppedItem);
-    console.log(`You just added ${this.items} to your inventory`);
+    player.inventory.push(poppedItem); //send the value of the .pop() to player inventory
+    console.log(`You just added ${this.items} to your inventory`); //message to user of what item they just placed in their inventory
   }
 
   exit() {
+    //this a feature we worked on to determine if a locked room can be opened
     if (this.secretItem === "key") {
+      //when the method is called it will only be true if the secret item is a key
       console.log(`The passcode has been accepted and the door opened`);
+      //in the game object the state of room one switches from locked to unlocked
       gameObjective.rooms.roomOne = "unlocked";
     } else {
       console.log("You are still stuck in this room");
@@ -60,18 +74,24 @@ class Room {
   }
 }
 
+//we are working on a way to incorporate a word bank into our game so this in the prototype phase
 let actionBank = {
+  //based on what the user input is we will call a method that iterates through the word bank and only accept the command if it is in the word bank
+  //if no command exists then nothing will happen and user must input again
   examine: ["read", "look", "examine"],
   take: ["take", "pick", "add"],
   drop: ["drop"],
   exit: ["open door", "exit room", "leave"],
   display: ["display", "show"],
 
+  //iterates through word bank and will display player inventory
   displayInventory: function (answer) {
     console.log("You have these items in your inventory:");
+    //using forEach to iterate through word bank
     actionBank.display.forEach(function (item) {
       if (answer === item) {
-        console.log(player.inventory);
+        //if user input (answer) matches a word in the word bank - display
+        console.log(player.inventory); //print player inventory to terminal
       }
     });
   },
@@ -79,16 +99,10 @@ let actionBank = {
 
 //player object
 let player = {
-  status: {
-    defaultStatus: ["awake"],
-    nextStatus: ["sleep", "brave", "scared"],
-  },
-
+  //empty inventory array to start that gets filled depending on items picked up during game
   inventory: [],
 
   playerStatus: function () {},
-
-  playerInventory: function () {},
 
   displayInventory: function () {
     console.log("You have these items in your inventory:");
@@ -100,12 +114,20 @@ let player = {
 
 //game object
 let gameObjective = {
+  //ultimate purpose of game object is to track main objectives room state
+  //we have been unable to fully conceptualize a more pure object-oriented approach and have instead offered a more hybrid approach
+  //future versions of the game will move more towards Oo approach and utilize a game object more that tracks game status as player moves through the rooms
   rooms: {
     roomOne: "locked",
-    roomTwo: "locked",
-    roomThree: "locked",
-    roomFour: "locked",
-    roomFive: "locked",
+    roomTwo: "unlocked",
+    roomThree: "unlocked",
+    roomFour: "unlocked",
+    roomFive: "unlocked",
+    roomSix: "unlocked",
+    roomSeven: "unlocked",
+    roomEight: "unlocked",
+    roomNine: "unlocked",
+    roomTen: "unlocked",
   },
 };
 
@@ -188,36 +210,39 @@ let answer;
 //Begin Game
 start();
 
+//Every async function we have set up operates in almost the same way => SO we will offer comments for this first room and additional comments for a few unique sections of code we have in later rooms
+//We print out the list of optional commands the user may input
+//The function enters a while loop that has a large conditional tree that will keep looping if the input is incorrect
+//or will return a value or offer a side effect if the input is a valid command
 async function start() {
   console.log(
     `Welcome:\nCommands: open door | read | look around | take | display inventory`
   );
-  //actionBank.displayInventory((answer = await ask(prompt)));
   answer = await ask(prompt);
-  //Room interaction block =>
+  //Room interaction block
   while (answer.trim() !== true) {
-    //Room descriptor
-    //Is it possible to be like => if answer include wordBank.action, then actionFunction for specific room?
     if (answer.trim() === "look around") {
+      //calls method in room class that prints room introduction
       console.log(roomOne.read());
+    } else if (answer.trim().includes("read")) {
+      //provides information that may be written on an item or sign
+      console.log(`The ${roomOne.props} has a passcode on it - 1234`); //pass code to open door
     }
-    //Acquire passcode
-    else if (answer.trim().includes("read")) {
-      console.log(`The ${roomOne.props} has a passcode on it - 1234`);
-    }
-    ///Add specific item from specific room to player inventory
+    //Add specific item from specific room to player inventory
     else if (answer === "take") {
       console.log(`Oh nice a bat`);
-      roomOne.sendItems();
+      roomOne.sendItems(); //calls room method sending item to player inventory
     } else if (answer === "display inventory") {
       console.log("You have these items in your inventory:");
       player.inventory.forEach(function (item) {
+        //displays current player inventory
         console.log(item);
       });
     }
-    //Exit Room
+    //Exit Room section of the block
     else if (answer.trim() == "open door") {
       if (gameObjective.rooms.roomOne === "unlocked") {
+        //the door is locked initially and requires a passcode
         console.log(`This door has already been unlocked, proceed`);
         nextStreetRoomOne();
       }
@@ -226,16 +251,17 @@ async function start() {
       );
 
       if (unlockDoor === "1234") {
+        //correct passcode is entered and the door is opened
         roomOne.exit();
-        nextStreetRoomOne();
+        nextStreetRoomOne(); //next room function is called and the player will enter that room
       } else {
         console.log("Wrong passcode");
       }
     } else {
-      console.log(`Sorry I don't know how to ${answer}.`);
+      console.log(`Sorry I don't know how to ${answer}.`); //default auto-response by program if input is invalid
     }
 
-    answer = await ask(">_");
+    answer = await ask(">_"); //default prompt conveying to user program requires input
   }
 }
 
@@ -250,7 +276,7 @@ async function nextStreetRoomOne() {
     if (answer.trim() === "look around") {
       console.log(streetRoomOne.read());
     }
-    ///Add specific item from specific room to player inventory
+    //Add specific item from specific room to player inventory
     else if (answer.trim() === "take") {
       console.log(`Hmm a note book. I wonder if the owner is still alive.`);
       streetRoomOne.sendItems();
@@ -346,13 +372,14 @@ async function nextHouseLeftRoom() {
     if (answer.trim() === "look around") {
       console.log(houseLeftRoom.read());
     }
-    ///Add specific item from specific room to player inventory
+    //In this room we have a unique item hidden in a toolbox called a map
     else if (answer === "take") {
-      houseLeftRoom.openToolbox();
-      houseLeftRoom.revealMap();
+      //if the player wants to take the toolbox it instead opens up
+      houseLeftRoom.openToolbox(); //method to open toolbox
+      houseLeftRoom.revealMap(); //reveals the map and asks user whether they want to take it or not
       let mapQuestion = await ask(`Do you want to take the map?`);
       if (mapQuestion.trim() === "take" || mapQuestion.trim() === "take map") {
-        houseLeftRoom.sendItems();
+        houseLeftRoom.sendItems(); //sends map to player inventory
       }
     } else if (answer === "display inventory") {
       console.log("You have these items in your inventory:");
@@ -430,7 +457,7 @@ async function nextHouseRightRoom() {
 async function nextPlaneRoom() {
   console.log(
     `Commands:\nread | look around | take | forward | backward | display inventory\n
-    go left` 
+    go left`
   );
   console.log(
     `You enter the plane and immediately notice a thick odor hanging the air.\nIt looks like something or someone has been living in here.\nYou notice a dark hole in the floor that leads to the bowels of plane. A clear path leads towards the cockpit.`
@@ -493,7 +520,6 @@ async function nextCockpitRoom() {
       console.log(
         `It seems the radio is attached to the wall.\nMaybe if you had a screwdriver you take it off.`
       );
-
     } else if (answer === "display inventory") {
       console.log("You have these items in your inventory:");
       player.inventory.forEach(function (item) {
@@ -528,7 +554,7 @@ async function nextCockpitRoom() {
 //cargo room
 async function nextCargoRoom() {
   console.log(
-    `Commands:\nread | look around | take | forward | backward | display inventory\n` 
+    `Commands:\nread | look around | take | forward | backward | display inventory\n`
   );
   console.log(`Geeze it's dark down here.`);
   answer = await ask(prompt);
@@ -549,19 +575,20 @@ async function nextCargoRoom() {
       } else {
         console.log(`I don't have anything to read.`);
       }
-    } else if (answer.trim() === "take"){
-      console.log("It's so dark in here. I can't find anything to take.")
+    } else if (answer.trim() === "take") {
+      console.log("It's so dark in here. I can't find anything to take.");
     }
     //Exit Room
     else if (answer.trim() === "backward") {
       //This will send you back to roomOne
       console.log("Great decision. You climb out of that dank hole.\n>_");
       nextPlaneRoom();
-    }
-    else if  (answer.trim() === "forward") {
+    } else if (answer.trim() === "forward") {
       //This will send you back to roomOne
-      console.log("You walk forward and smash your head on something. Perhaps you should go back.\n>_");
-    }  else {
+      console.log(
+        "You walk forward and smash your head on something. Perhaps you should go back.\n>_"
+      );
+    } else {
       console.log(`Sorry I don't know how to ${answer}.`);
     }
     answer = await ask(">_");
@@ -570,7 +597,7 @@ async function nextCargoRoom() {
 //Cave Entrance
 async function nextCaveEntrance() {
   console.log(
-    `Commands:\nread | look around | take | forward | backward | display inventory\n` 
+    `Commands:\nread | look around | take | forward | backward | display inventory\n`
   );
   answer = await ask(prompt);
 
@@ -605,8 +632,7 @@ async function nextCaveEntrance() {
     } else if (answer.trim() === "forward") {
       console.log("You head down the path towards another possible cave.\n>_");
       nextCaveOne();
-    }
-     else {
+    } else {
       console.log(`Sorry I don't know how to ${answer}.`);
     }
     answer = await ask(">_");
@@ -616,7 +642,7 @@ async function nextCaveEntrance() {
 //Cave One
 async function nextCaveOne() {
   console.log(
-    `Commands:\nread | look around | take | forward | backward | display inventory\n` 
+    `Commands:\nread | look around | take | forward | backward | display inventory\n`
   );
   console.log(caveOne);
   console.log(
@@ -668,10 +694,12 @@ async function nextCaveOne() {
 
 async function nextCaveTwo() {
   console.log(
-    `Commands:\nread | look around | take | forward | backward | display inventory\n` 
+    `Commands:\nread | look around | take | forward | backward | display inventory\n`
   );
   console.log(caveTwo);
-  console.log(`An eerie sound blankets the air. An electric buzz or a hum. Or both.`);
+  console.log(
+    `An eerie sound blankets the air. An electric buzz or a hum. Or both.`
+  );
   answer = await ask(prompt);
 
   while (answer.trim() !== true) {
