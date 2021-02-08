@@ -15,7 +15,7 @@ class Room {
   //our main variables for the constructor are intro: initial room description,
   //secretItem: changes room to room but default is a key, items: represent mutable items in the room that can be interacted with i.e. picked up and placed in inventory,
   //props: immutable items in a room that cannot be interacted with, toolbox: for one specific room we are considering using extends for instead
-  constructor(intro, secretItem, items = [], props = [], toolbox) {
+  constructor(intro, secretItem, items, props, toolbox) {
     this.intro = intro;
     this.secretItem = secretItem || "key";
     this.items = items;
@@ -153,7 +153,7 @@ let streetRoomOne = new Room(
   ["car", "bench", "bird"]
 );
 let streetRoomTwo = new Room(
-  "On the left you see a house that has burnt down some time ago.\nOn the right there seems to be a house in pristine condition.\nAlmost like someone lives there.\ncrashed 100 yards down. ",
+  "On the left you see a house that has burnt down some time ago.\nOn the right there seems to be a house in pristine condition.\nAlmost like someone lives there.\nA hundred yards down, an airplane has crashed - it looks like some time ago.\n A chasm splits the plane down the center, you might be able to slip in. ",
   "",
   [""],
   ["rubble"]
@@ -247,7 +247,7 @@ async function start() {
       });
     }
     //Exit Room section of the block
-    else if (answer.trim() == "open door") {
+    else if (answer.trim() === "open door") {
       if (gameObjective.rooms.roomOne === "unlocked") {
         //the door is locked initially and requires a passcode
         console.log(`This door has already been unlocked, proceed`);
@@ -303,11 +303,11 @@ async function nextStreetRoomOne() {
       });
     }
     //Exit Room
-    else if (answer.trim() == "backward") {
+    else if (answer.trim() === "backward") {
       //This will send you back to roomOne
       console.log("You walk back into the room from which you woke.\n>_");
       start();
-    } else if (answer.trim() == "forward") {
+    } else if (answer.trim() === "forward") {
       console.log(
         "You walk further down the street and see two houses.\nThe one on the left seems to have burned down long ago.\nThe house on the right is pristine. I wonder if someone lives there.\n>_"
       );
@@ -347,17 +347,17 @@ async function nextStreetRoomTwo() {
       }
     }
     //Exit Room
-    else if (answer.trim() == "backward") {
+    else if (answer.trim() === "backward") {
       //This will send you back to roomOne
       console.log("\nYou walk back towards the bench\n>_");
       nextStreetRoomOne();
-    } else if (answer.trim() == "forward") {
+    } else if (answer.trim() === "forward") {
       console.log("\nYou walk towards the airplane.\n>_");
       nextPlaneRoom();
-    } else if (answer.trim() == "go left") {
+    } else if (answer.trim() === "go left") {
       console.log("\nYou walk over to that burned down house.\n>_");
       nextHouseLeftRoom();
-    } else if (answer.trim() == "go right") {
+    } else if (answer.trim() === "go right") {
       console.log(
         "\nYou walk over to that beautiful georgian style house.\n>_"
       );
@@ -404,7 +404,7 @@ async function nextHouseLeftRoom() {
       }
     }
     //Exit Room
-    else if (answer.trim() == "backward") {
+    else if (answer.trim() === "backward") {
       //This will send you back to roomOne
       console.log(
         "\nYou exit the house and walk back outside to the street\n>_"
@@ -501,7 +501,7 @@ async function nextPlaneRoom() {
     } else if (answer.trim() === "forward") {
       console.log("You walk towards the cockpit\n>_");
       nextCockpitRoom();
-    } else if (answer.trim() == "go left") {
+    } else if (answer.trim() === "go left") {
       console.log("You nervously begin to climb down into the bowels.\n>_");
       nextCargoRoom();
     } else {
@@ -526,7 +526,7 @@ async function nextCockpitRoom() {
     ///Add specific item from specific room to player inventory
     else if (answer === "take") {
       console.log(
-        `It seems the radio is attached to the wall.\nMaybe if you had a screwdriver you take it off.`
+        `It seems the radio is attached to the wall.\nMaybe if you had a screwdriver you could take it off.`
       );
     } else if (answer === "display inventory") {
       console.log("You have these items in your inventory:");
@@ -652,7 +652,6 @@ async function nextCaveOne() {
   console.log(
     `Commands:\nread | look around | take | forward | backward | display inventory\n`
   );
-  console.log(caveOne);
   console.log(
     `You head down the path and have to squeeze through a tight space`
   );
@@ -704,7 +703,6 @@ async function nextCaveTwo() {
   console.log(
     `Commands:\nread | look around | take | forward | backward | display inventory\n`
   );
-  console.log(caveTwo);
   console.log(
     `An eerie sound blankets the air. An electric buzz or a hum. Or both.`
   );
