@@ -18,23 +18,23 @@ let prompt = ">_";
 let input; //Raw input
 let inputSaniArr; //Split raw input into array of strings
 let inputFirstWord; //String of first word in input
-
 let singleItem; //String of single-word item
 let doubleItem; //String of a double-word item
-let singleItemRoomIndex;
-let singleItemInventoryIndex;
-let doubleItemRoomIndex;
-let doubleItemInventoryIndex;
+let singleItemRoomIndex;//Index of single-word item in currentRoom
+let singleItemInventoryIndex;//Index of single-word item in inventory
+let doubleItemRoomIndex;//Index of double-word item in currentRoom
+let doubleItemInventoryIndex;//Index of double-word item in inventory
 let currentRoomState; //String of current room
 let roomState; //Object of current room
 let movementPossibilityArr; //Array of possible movements
 
 //Room Builder
 class Room {
-  constructor(intro, description, items) {
+  constructor(intro, description, items, outro) {
     this.intro = intro; //When entering room, queue this message
     this.description = description; //when you say look around, queue this
     this.items = items; //Array with room objects
+    this.outro = outro;
   }
 }
 
@@ -42,17 +42,20 @@ class Room {
 let roomOne = new Room(
   "roomOne is green",
   "You look around. Everything is green.",
-  ["corn", "green object", "stick"]
+  ["corn", "green object", "stick"],
+  "You walk away from the green room"
 );
 let roomTwo = new Room(
   "roomTwo is yellow",
   "You look around. Everything is yellow.",
-  ["dirt", "yellow object", "yarn"]
+  ["dirt", "yellow object", "yarn"],
+  "you walk away from the yellow room"
 );
 let roomThree = new Room(
   "roomTwo is red",
   "You look around. Everything is red.",
-  ["two books", "red object", "rake"]
+  ["two books", "red object", "rake"],
+  "you walk away from the red room"
 );
 
 // Current room state machine//
@@ -76,9 +79,11 @@ let roomLookUp = {
 let currentRoom = roomOne;
 function changeRoom(nextState) {
   if (roomState[currentRoomState].includes(nextState)) {
+    console.log(currentRoom.outro)
     currentRoomState = nextState;
     currentRoom = roomLookUp[nextState];
     movementPossibilityArr = roomState[nextState];
+    console.log(currentRoom.intro)
   } else {
     console.log(
       `You dummy, you can't go from ${currentRoomState} to ${nextState}`
@@ -96,6 +101,7 @@ function movement() {
     roomState.key === currentRoomState
   ) {
     changeRoom(movementPossibilityArr[0]);
+    console.log()
   } else if (
     movementBank.backward.includes(input) ||
     roomState.key === currentRoomState
@@ -128,49 +134,61 @@ let movementBank = {
 
 //Action
 
-function commandLog() {
-  if (actionBank.location.includes(input)) {
-    console.log(`You're in: ` + currentRoomState);
-  }
-}
 
+//<-----Add/Drop Items from Inventory----->
 function inventory() {
   //<--------Input sanitization------>//
   inputSaniArr = input.trim().split(" "); //splits input into array of strings
 
-  singleItem = inputSaniArr.slice(1, 2).join(" ");
+  singleItem = inputSaniArr.slice(1, 2).join(" ");//Single item grab
   doubleItem = inputSaniArr.slice(1, 3).join(" "); //this is to guard against items that may be two words => It will rejoin index 1-3 from input array
 
   //Item in Room Index//
   singleItemRoomIndex = currentRoom.items.indexOf(singleItem);
   doubleItemRoomIndex = currentRoom.items.indexOf(doubleItem);
-  //Item in Inventory Index
+
   singleItemInventoryIndex = player.inventory.indexOf(singleItem);
   doubleItemInventoryIndex = player.inventory.indexOf(doubleItem);
+
 
   inputFirstWord = inputSaniArr.shift();
 
   //<-----Add items to inventory----->//
-  if (
+ if (
     actionBank.itemAdd.includes(inputFirstWord) &&
     currentRoom.items.includes(singleItem)
   ) {
-    player.inventory.push(currentRoom.items.splice(singleItemRoomIndex, 1)); //Splices item from room and pushes into inventory
+    player.inventory.push(currentRoom.items.splice(singleItemRoomIndex, 1)[0]); //Splices item from room and pushes into inventory
+
+
     return player.inventory;
   } else if (
     actionBank.itemAdd.includes(inputFirstWord) &&
     currentRoom.items.includes(doubleItem)
   ) {
-    player.inventory.push(currentRoom.items.splice(doubleItemRoomIndex, 1));
+    player.inventory.push(currentRoom.items.splice(doubleItemRoomIndex, 1)[0]);
     return player.inventory;
-  } else if (
-    currentRoom.items.includes(singleItem) === false ||
-    currentRoom.items.includes(doubleItem) === false
-  ) {
-    console.log("That item does not exist in this room.");
-  }
+  } 
 
-  //   //<-----Drop items from inventory----->//
+ //<-----Drop items from inventory----->//
+  if (
+    actionBank.itemDrop.includes(inputFirstWord) &&
+    player.inventory.includes(singleItem)
+  ) {
+    currentRoom.items.push(player.inventory.splice(singleItemInventoryIndex, 1)[0])
+  }
+   else if (
+    actionBank.itemDrop.includes(inputFirstWord) &&
+    player.inventory.includes(doubleItem)
+  ) {
+    currentRoom.items.push(player.inventory.splice(doubleItemInventoryIndex, 1)[0])
+  }
+}
+//<-----Queues description of currentRoom----->//
+function lookAround() {
+  if (actionBank.lookAround.includes(input)){
+    console.log(currentRoom.description)
+  }
 }
 
 //Input Block
@@ -179,28 +197,20 @@ async function begin() {
   while (input !== true) {
     input = await ask(prompt);
 
-    commandLog();
+ 
     inventory();
+    lookAround();
     movement();
 
     //Check Block//
     console.log("\n<-----Check Block Start----->");
     console.log("Ref: you inputed: " + input);
-    console.log(singleItem);
-    console.log(doubleItem);
-    console.log(singleItemRoomIndex);
-    console.log(doubleItemRoomIndex);
-    console.log(singleItemInventoryIndex);
-    console.log(doubleItemInventoryIndex);
-
 
     console.log("Ref: currentRoomState: " + currentRoomState);
 
     console.log("\n<--Inventory Block-->\n");
-    console.log("Ref: player.inventory: " + player.inventory);
-    console.log("Ref: player.inventory type of: " + typeof player.inventory);
-    console.log("Ref: currentRoom.items: " + currentRoom.items);
-
+    console.log("Ref: player.inventory: " , player.inventory);
+    console.log("Ref: currentRoom.items: " , currentRoom.items);
     console.log("\n<-----Check Block End----->\n");
 
     //Check Block End//
